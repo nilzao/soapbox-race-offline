@@ -58,14 +58,14 @@ public class Basket {
 
 					fx.WriteXML(doc, "www/soapbox/Engine.svc/events/gettreasurehunteventsession.xml");
 				} else {
-					if (Files.exists(Paths.get("../basket/" + basketId + ".xml"))) {
+					if (Files.exists(Paths.get("www/basket/" + basketId + ".xml"))) {
 						fx.log("|| -> Purchase for car " + basketId + " was successful.");
 						fx.FixCarslots();
 						Document doc = docBuilder.parse(new File("www/soapbox/Engine.svc/personas/" + Functions.personaId + "/carslots.xml"));
 						int lastIdIndex = doc.getElementsByTagName("Id").getLength() - 1;
 						String carId = String.valueOf(Integer.parseInt(doc.getElementsByTagName("Id").item(lastIdIndex).getTextContent()) + 1);
 
-						Document doc2 = docBuilder.parse(new File("../basket/" + basketId + ".xml"));
+						Document doc2 = docBuilder.parse(new File("www/basket/" + basketId + ".xml"));
 						doc2.getElementsByTagName("Id").item(1).setTextContent(carId);
 						Node carTrans = doc.importNode(doc2.getFirstChild(), true);
 						doc.getElementsByTagName("CarsOwnedByPersona").item(0).appendChild(carTrans);
