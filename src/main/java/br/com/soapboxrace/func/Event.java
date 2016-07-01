@@ -118,7 +118,7 @@ public class Event {
 		int lastIdIndex = doc.getElementsByTagName("Id").getLength() - 1;
 		String carId = String.valueOf(Integer.parseInt(doc.getElementsByTagName("Id").item(lastIdIndex).getTextContent()) + 1);
 
-		Document doc2 = docBuilder.parse(new File("../basket/" + basketId + ".xml"));
+		Document doc2 = docBuilder.parse(new File("www/basket/" + basketId + ".xml"));
 		doc2.getElementsByTagName("Id").item(1).setTextContent(carId);
 
 		Node carTrans = doc.importNode(doc2.getFirstChild(), true);
@@ -126,7 +126,7 @@ public class Event {
 		int _carId = Integer.parseInt(carId) - 1;
 		doc.getElementsByTagName("DefaultOwnedCarIndex").item(0).setTextContent(String.valueOf(_carId));
 		fx.WriteXML(doc, "www/soapbox/Engine.svc/personas/" + Functions.personaId + "/carslots.xml");
-		fx.WriteTempCar(new String(Files.readAllBytes(Paths.get("../basket/" + basketId + ".xml")), StandardCharsets.UTF_8));
+		fx.WriteTempCar(new String(Files.readAllBytes(Paths.get("www/basket/" + basketId + ".xml")), StandardCharsets.UTF_8));
 		fx.log("|| -> New car has been added to the carslots of persona " + Functions.personaId + ".");
 		fx.log("|| -> Car Index has been changed to match the new car's ID.");
 	}
