@@ -74,7 +74,7 @@ public class Basket {
 						doc.getElementsByTagName("DefaultOwnedCarIndex").item(0).setTextContent(String.valueOf(_carId));
 						fx.log("|| -> CarIndex has been set to match new car's index.");
 						fx.WriteXML(doc, "www/soapbox/Engine.svc/personas/" + Functions.personaId + "/carslots.xml");
-						fx.WriteTempCar(new String(Files.readAllBytes(Paths.get("../basket/" + basketId + ".xml")), StandardCharsets.UTF_8));
+						fx.WriteTempCar(new String(Files.readAllBytes(Paths.get("www/basket/" + basketId + ".xml")), StandardCharsets.UTF_8));
 						fx.log("|| -> The car [ID = " + carId + "; Index = " + _carId + "] has been bought and set.");
 					} else {
 						fx.log("|| !!!! -> Basket not found: " + basketId);

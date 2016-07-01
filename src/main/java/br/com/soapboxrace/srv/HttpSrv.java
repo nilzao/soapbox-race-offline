@@ -279,12 +279,9 @@ public class HttpSrv extends GzipHandler {
 			Functions.multipliers = new double[] { Double.parseDouble(settings[2]), Double.parseDouble(settings[3]), Double.parseDouble(settings[4]) };
 			Functions.rankDrop = new int[][] { new int[] {}, fx.StringArrayToIntArray(settings[10]), fx.StringArrayToIntArray(settings[11]),
 					fx.StringArrayToIntArray(settings[12]), fx.StringArrayToIntArray(settings[13]) };
-
-			fx.WriteText("isRunning", "true");
 			server.join();
 		} catch (Exception e) {
 			e.printStackTrace();
-			fx.WriteText("isRunning", "error");
 		}
 	}
 }
