@@ -236,7 +236,7 @@ public class Event {
 					+ LuckyDrawItem
 					+ "</Items><NumBoxAnimations>100</NumBoxAnimations></LuckyDrawInfo><OriginalRewards><Rep>0</Rep><Tokens>0</Tokens></OriginalRewards><RewardInfo>"
 					+ Rewards + "</RewardInfo></Accolades>";
-			fx.WriteText("serverSettings/THDate", LocalDate.now().toString());
+			fx.WriteText("www/soapbox/Engine.svc/THDate", LocalDate.now().toString());
 		}
 	}
 
