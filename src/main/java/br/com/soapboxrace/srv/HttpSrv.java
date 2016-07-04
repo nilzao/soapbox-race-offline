@@ -246,8 +246,16 @@ public class HttpSrv extends GzipHandler {
 	}
 
 	public static void main(String[] args) {
+		String gameExePath = "...";
+		try {
+			gameExePath = new String(Files.readAllBytes(Paths.get("gameExePath.txt")));
+		} catch (Exception e) {
+			//
+		}
+
 		MainWindow mainWindow = new MainWindow();
 		mainWindow.setVisible(true);
+		mainWindow.setGamePathLabelText(gameExePath);
 		Functions.setLogTextArea(mainWindow.getLogTextArea());
 		Functions.log("Starting offline server");
 		System.setProperty("jsse.enableCBCProtection", "false");

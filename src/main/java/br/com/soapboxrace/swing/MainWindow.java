@@ -7,9 +7,12 @@ package br.com.soapboxrace.swing;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
+import java.io.PrintWriter;
+import java.util.List;
 
 import javax.swing.JFileChooser;
+
+import br.com.soapboxrace.func.Functions;
 
 public class MainWindow extends javax.swing.JFrame {
 
@@ -184,13 +187,21 @@ public class MainWindow extends javax.swing.JFrame {
 	private void launchButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_launchButtonActionPerformed
 		ProcessBuilder processBuilder = new ProcessBuilder(gamePathLabel.getText(), "US",
 				"http://127.0.0.1:7331/soapbox/Engine.svc", "a", "1");
+		StringBuilder commandStr = new StringBuilder();
+		List<String> commandLst = processBuilder.command();
+		for (String string : commandLst) {
+			commandStr.append(string);
+			commandStr.append(" ");
+		}
+		Functions.log("\nRunning command:");
+		Functions.log(commandStr.toString());
+		Functions.log("\n");
 		try {
 			processBuilder.start();
 		} catch (IOException e) {
-			logTextArea.append(e.getMessage());
-			e.printStackTrace();
+			gamePathLabel.setText("error launching, check log");
+			Functions.log(e.getMessage());
 		}
-		// TODO add your handling code here:
 	}// GEN-LAST:event_launchButtonActionPerformed
 
 	private void changeExePathButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_changeExePathButtonActionPerformed
@@ -199,14 +210,24 @@ public class MainWindow extends javax.swing.JFrame {
 			File file = fileChooser.getSelectedFile();
 			String path = file.getAbsolutePath();
 			gamePathLabel.setText(path);
-		} else {
-			System.out.println("File access cancelled by user.");
+			try {
+				PrintWriter out = new PrintWriter("gameExePath.txt");
+				out.print(path);
+				out.close();
+			} catch (Exception e) {
+				Functions.log(e.getMessage());
+			}
 		}
 	}// GEN-LAST:event_changeExePathButtonActionPerformed
 
 	public void addLog(String msg) {
 		logTextArea.append(msg);
 	}
+	
+	public void setGamePathLabelText(String text){
+		gamePathLabel.setText(text);
+	}
+	
 
 	// Variables declaration - do not modify//GEN-BEGIN:variables
 	private javax.swing.JLabel aboutLabel1;
