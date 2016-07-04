@@ -5,6 +5,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
+import br.com.soapboxrace.func.Functions;
+
 public class XmppSrv {
 
 	public static ConcurrentHashMap<Long, XmppTalk> xmppClients = new ConcurrentHashMap<Long, XmppTalk>();
@@ -43,8 +45,8 @@ public class XmppSrv {
 	private static class XmppSrvRun extends Thread {
 		public void run() {
 			try {
-				System.out.println("Xmpp server is running.");
-				System.out.println("");
+				Functions.log("Xmpp server is running.");
+				Functions.log("");
 				ServerSocket listener = new ServerSocket(5222);
 				try {
 					while (true) {
@@ -66,7 +68,7 @@ public class XmppSrv {
 		public Capitalizer(Socket socket) {
 			this.socket = socket;
 			xmppTalk = new XmppTalk(this.socket);
-			System.out.println("New connection at " + socket);
+			Functions.log("New connection at " + socket);
 		}
 
 		public void run() {
@@ -83,10 +85,10 @@ public class XmppSrv {
 				try {
 					socket.close();
 				} catch (IOException e) {
-					System.out.println("Couldn't close a socket, what's going on?");
+					Functions.log("Couldn't close a socket, what's going on?");
 				}
 				XmppSrv.removeXmppClient(xmppTalk.getPersonaId());
-				System.out.println("Connection with client closed");
+				Functions.log("Connection with client closed");
 			}
 		}
 

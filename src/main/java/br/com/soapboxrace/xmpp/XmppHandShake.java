@@ -1,5 +1,7 @@
 package br.com.soapboxrace.xmpp;
 
+import br.com.soapboxrace.func.Functions;
+
 public class XmppHandShake {
 
 	private XmppTalk xmppTalk;
@@ -40,7 +42,7 @@ public class XmppHandShake {
 				personaId = Integer.valueOf(read);
 				packets[1] = "<iq id='EA-Chat-1' type='result' xml:lang='en'><query xmlns='jabber:iq:auth'><username>nfsw." + personaId
 						+ "</username><password/><digest/><resource/><clientlock xmlns='http://www.jabber.com/schemas/clientlocking.xsd'/></query></iq>";
-				System.out.println("parse personaId: " + personaId);
+				Functions.log("parse personaId: " + personaId);
 			}
 			xmppTalk.write(packets[pkgCount]);
 			pkgCount++;

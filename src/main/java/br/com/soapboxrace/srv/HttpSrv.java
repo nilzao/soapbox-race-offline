@@ -25,6 +25,7 @@ import br.com.soapboxrace.func.Basket;
 import br.com.soapboxrace.func.Commerce;
 import br.com.soapboxrace.func.Event;
 import br.com.soapboxrace.func.Functions;
+import br.com.soapboxrace.swing.MainWindow;
 import br.com.soapboxrace.xmpp.SubjectCalc;
 import br.com.soapboxrace.xmpp.XmppSrv;
 
@@ -43,19 +44,22 @@ public class HttpSrv extends GzipHandler {
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			String sLastTarget = target.split("/")[target.split("/").length - 1];
-			if (!sLastTarget.contains("cryptoticket") && !sLastTarget.contains("getrebroadcasters") && !sLastTarget.contains("heartbeat")) {
-				System.out.println(baseRequest.getMethod() + ": " + sLastTarget);
+			if (!sLastTarget.contains("cryptoticket") && !sLastTarget.contains("getrebroadcasters")
+					&& !sLastTarget.contains("heartbeat")) {
+				Functions.log(baseRequest.getMethod() + ": " + sLastTarget);
 			}
 			modifiedTarget = target;
 			boolean isXmpp = false;
 
 			if (target.matches("/soapbox/Engine.svc/User/SecureLoginPersona")) {
 				Functions.personaId = baseRequest.getParameter("personaId");
-				fx.ChangeDefaultPersona(String.valueOf((Integer.parseInt(baseRequest.getParameter("personaId")) / 100) - 1));
+				fx.ChangeDefaultPersona(
+						String.valueOf((Integer.parseInt(baseRequest.getParameter("personaId")) / 100) - 1));
 			} else if (target.matches("/soapbox/Engine.svc/setusersettings")) {
 				fx.WriteText("www/soapbox/Engine.svc/getusersettings.xml",
-						new String(Files.readAllBytes(Paths.get("www/soapbox/Engine.svc/getusersettings.xml")), StandardCharsets.UTF_8)
-								.replace("<starterPackApplied>false</starterPackApplied>", "<starterPackApplied>true</starterPackApplied>"));
+						new String(Files.readAllBytes(Paths.get("www/soapbox/Engine.svc/getusersettings.xml")),
+								StandardCharsets.UTF_8).replace("<starterPackApplied>false</starterPackApplied>",
+										"<starterPackApplied>true</starterPackApplied>"));
 			} else if (target.matches("/soapbox/Engine.svc/catalog/productsInCategory")) {
 				modifiedTarget = target + "_" + baseRequest.getParameter("categoryName");
 			} else if (target.matches("/soapbox/Engine.svc/catalog/categories")) {
@@ -65,12 +69,12 @@ public class HttpSrv extends GzipHandler {
 				event.processPowerup(sLastTarget, -1);
 			} else if (target.matches("/soapbox/Engine.svc/matchmaking/joinqueueevent(.*)")) {
 				iEvent = Integer.parseInt(sLastTarget);
-				fx.log("|| Fake Event ID loaded: " + sLastTarget + ". Launch a singleplayer event to load it!");
+				Functions.log("|| Fake Event ID loaded: " + sLastTarget + ". Launch a singleplayer event to load it!");
 			} else if (target.matches("/soapbox/Engine.svc/matchmaking/launchevent(.*)")) {
 				if (sLastTarget != String.valueOf(iEvent) && iEvent != 0) {
 					modifiedTarget = "/soapbox/Engine.svc/matchmaking/launchevent/" + String.valueOf(iEvent);
 					iEvent = 0;
-					fx.log("|| -> Fake Event ID has been reset.");
+					Functions.log("|| -> Fake Event ID has been reset.");
 				}
 			} else if (target.matches("/soapbox/Engine.svc/badges/set"))
 				fx.ChangeBadges(readInputStream(request));
@@ -97,11 +101,11 @@ public class HttpSrv extends GzipHandler {
 			} else if (target.matches("/soapbox/Engine.svc/events/notifycoincollected")) {
 				fx.SaveTHProgress(baseRequest.getParameter("coins"));
 				if (baseRequest.getParameter("coins").equals("32767")) {
-					System.out.println("|| Detected TH Finished event.");
+					Functions.log("|| Detected TH Finished event.");
 					if (fx.GetIsTHStreakBroken().equals("true")) {
 						THBroken = true;
 						modifiedTarget = "THBroken";
-						fx.log("|| -> Your TH Streak is broken.");
+						Functions.log("|| -> Your TH Streak is broken.");
 						Functions.answerData = "<Accolades xmlns=\"http://schemas.datacontract.org/2004/07/Victory.DataLayer.Serialization.Event\" xmlns:i=\"http://www.w3.org/2001/XMLSchema-instance\"><FinalRewards><Rep>25</Rep><Tokens>78</Tokens></FinalRewards><HasLeveledUp>false</HasLeveledUp><LuckyDrawInfo><Boxes><LuckyBox><CardDeck>LD_CARD_SILVER</CardDeck></LuckyBox><LuckyBox><CardDeck>LD_CARD_SILVER</CardDeck></LuckyBox><LuckyBox><CardDeck>LD_CARD_SILVER</CardDeck></LuckyBox><LuckyBox><CardDeck>LD_CARD_SILVER</CardDeck></LuckyBox><LuckyBox><CardDeck>LD_CARD_SILVER</CardDeck></LuckyBox></Boxes><CurrentStreak>"
 								+ String.valueOf(fx.GetTHStreak())
 								+ "</CurrentStreak><IsStreakBroken>true</IsStreakBroken><Items></Items><NumBoxAnimations>100</NumBoxAnimations></LuckyDrawInfo><OriginalRewards><Rep>0</Rep><Tokens>0</Tokens></OriginalRewards><RewardInfo/></Accolades>";
@@ -115,7 +119,7 @@ public class HttpSrv extends GzipHandler {
 				modifiedTarget = "Arbitration";
 			} else if (target.matches("/soapbox/Engine.svc/events/accolades")) {
 				if (THBroken) {
-					fx.log("|| -> Your TH Streak will be revived for 1000 Boost.");
+					Functions.log("|| -> Your TH Streak will be revived for 1000 Boost.");
 					event.ReadArbitration("<TreasureHunt/>");
 					modifiedTarget = "THCompleted";
 					THBroken = false;
@@ -137,7 +141,8 @@ public class HttpSrv extends GzipHandler {
 			byte[] content = null;
 			if (Files.exists(Paths.get("www" + modifiedTarget + ".xml"))) {
 				content = Files.readAllBytes(Paths.get("www" + modifiedTarget + ".xml"));
-			} else if (Files.exists(Paths.get("www" + modifiedTarget)) && !Files.isDirectory(Paths.get("www" + modifiedTarget))) {
+			} else if (Files.exists(Paths.get("www" + modifiedTarget))
+					&& !Files.isDirectory(Paths.get("www" + modifiedTarget))) {
 				content = Files.readAllBytes(Paths.get("www" + modifiedTarget));
 			} else if (modifiedTarget != target) {
 				content = Functions.answerData.getBytes(StandardCharsets.UTF_8);
@@ -228,7 +233,8 @@ public class HttpSrv extends GzipHandler {
 			if (fxmpp.exists()) {
 				encoded = Files.readAllBytes(Paths.get(path));
 				if (encoded != null) {
-					String msg = new String(encoded, StandardCharsets.UTF_8).replace("RELAYPERSONA", Functions.personaId);
+					String msg = new String(encoded, StandardCharsets.UTF_8).replace("RELAYPERSONA",
+							Functions.personaId);
 					Long personaIdLong = Long.decode(Functions.personaId);
 					msg = setXmppSubject(msg);
 					XmppSrv.sendMsg(personaIdLong, msg);
@@ -240,6 +246,10 @@ public class HttpSrv extends GzipHandler {
 	}
 
 	public static void main(String[] args) {
+		MainWindow mainWindow = new MainWindow();
+		mainWindow.setVisible(true);
+		Functions.setLogTextArea(mainWindow.getLogTextArea());
+		Functions.log("Starting offline server");
 		System.setProperty("jsse.enableCBCProtection", "false");
 		try {
 			Locale newLocale = new Locale("en", "GB");
@@ -252,36 +262,41 @@ public class HttpSrv extends GzipHandler {
 			XmppSrv xmppSrv = new XmppSrv();
 			xmppSrv.start();
 
-			fx.log("");
-			String THDate = fx.ReadText("www/soapbox/Engine.svc/THDate");
+			Functions.log("");
+			String THDate = fx.ReadText("www/soapbox/Engine.svc/serverSettings/THDate");
 			if (THDate != LocalDate.now().toString()) {
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd", Locale.ENGLISH);
 				LocalDate lastCompletedTHDate = LocalDate.parse(THDate, formatter);
 				LocalDate nowDate = LocalDate.now();
 				long days = ChronoUnit.DAYS.between(lastCompletedTHDate, nowDate);
 
-				fx.log("|| Last TH completed was on " + lastCompletedTHDate.toString() + ".");
+				Functions.log("|| Last TH completed was on " + lastCompletedTHDate.toString() + ".");
 				if (days == 0) {
-					fx.log("|| -> Since that date is today, nothing will be done.");
+					Functions.log("|| -> Since that date is today, nothing will be done.");
 				} else if (days == 1) {
 					fx.StartNewTH(true);
 				} else if (days >= 2) {
 					fx.StartNewTH(false);
-					fx.log("|| -> Since that date, it's been " + String.valueOf(days) + " days. Your TH Streak is broken.");
+					Functions.log("|| -> Since that date, it's been " + String.valueOf(days)
+							+ " days. Your TH Streak is broken.");
 				} else {
-					fx.log("|| !! -> Go back where you came from time traveller!");
+					Functions.log("|| !! -> Go back where you came from time traveller!");
 				}
 			}
 
-			String[] settings = Files.readAllLines(Paths.get("www/soapbox/Engine.svc/settings")).toArray(new String[] {});
-			Functions.rewards = new int[] { Integer.parseInt(settings[1]), Integer.parseInt(settings[5]), Integer.parseInt(settings[6]),
-					Integer.parseInt(settings[7]), Integer.parseInt(settings[8]) };
-			Functions.multipliers = new double[] { Double.parseDouble(settings[2]), Double.parseDouble(settings[3]), Double.parseDouble(settings[4]) };
-			Functions.rankDrop = new int[][] { new int[] {}, fx.StringArrayToIntArray(settings[10]), fx.StringArrayToIntArray(settings[11]),
-					fx.StringArrayToIntArray(settings[12]), fx.StringArrayToIntArray(settings[13]) };
+			String[] settings = Files.readAllLines(Paths.get("www/soapbox/Engine.svc/serverSettings/settings"))
+					.toArray(new String[] {});
+			Functions.rewards = new int[] { Integer.parseInt(settings[1]), Integer.parseInt(settings[5]),
+					Integer.parseInt(settings[6]), Integer.parseInt(settings[7]), Integer.parseInt(settings[8]) };
+			Functions.multipliers = new double[] { Double.parseDouble(settings[2]), Double.parseDouble(settings[3]),
+					Double.parseDouble(settings[4]) };
+			Functions.rankDrop = new int[][] { new int[] {}, fx.StringArrayToIntArray(settings[10]),
+					fx.StringArrayToIntArray(settings[11]), fx.StringArrayToIntArray(settings[12]),
+					fx.StringArrayToIntArray(settings[13]) };
 			server.join();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 	}
 }

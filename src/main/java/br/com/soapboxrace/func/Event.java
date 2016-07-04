@@ -61,7 +61,7 @@ public class Event {
 				case "PERFORMANCEPART": {
 					int newParts = Integer.parseInt(inventory.getElementsByTagName("PerformancePartsUsedSlotCount").item(0).getTextContent()) + 1;
 					if (newParts > Integer.parseInt(inventory.getElementsByTagName("PerformancePartsCapacity").item(0).getTextContent())) {
-						fx.log("|| !!! -> Maximum amount of performance parts was reached. NO NEW PARTS WILL BE ADDED!");
+						Functions.log("|| !!! -> Maximum amount of performance parts was reached. NO NEW PARTS WILL BE ADDED!");
 						return;
 					} else {
 						inventory.getElementsByTagName("PerformancePartsUsedSlotCount").item(0).setTextContent(String.valueOf(newParts));
@@ -71,7 +71,7 @@ public class Event {
 				case "SKILLMODPART": {
 					int newParts = Integer.parseInt(inventory.getElementsByTagName("SkillModPartsUsedSlotCount").item(0).getTextContent()) + 1;
 					if (newParts > Integer.parseInt(inventory.getElementsByTagName("SkillModPartsCapacity").item(0).getTextContent())) {
-						fx.log("|| !!! -> Maximum amount of skill mods was reached. NO NEW PARTS WILL BE ADDED!");
+						Functions.log("|| !!! -> Maximum amount of skill mods was reached. NO NEW PARTS WILL BE ADDED!");
 						return;
 					} else {
 						inventory.getElementsByTagName("SkillModPartsUsedSlotCount").item(0).setTextContent(String.valueOf(newParts));
@@ -81,7 +81,7 @@ public class Event {
 				case "VISUALPART": {
 					int newParts = Integer.parseInt(inventory.getElementsByTagName("VisualPartsUsedSlotCount").item(0).getTextContent()) + 1;
 					if (newParts > Integer.parseInt(inventory.getElementsByTagName("VisualPartsCapacity").item(0).getTextContent())) {
-						fx.log("|| !!! -> Maximum amount of visual parts was reached. NO NEW PARTS WILL BE ADDED!");
+						Functions.log("|| !!! -> Maximum amount of visual parts was reached. NO NEW PARTS WILL BE ADDED!");
 						return;
 					} else {
 						inventory.getElementsByTagName("VisualPartsUsedSlotCount").item(0).setTextContent(String.valueOf(newParts));
@@ -127,8 +127,8 @@ public class Event {
 		doc.getElementsByTagName("DefaultOwnedCarIndex").item(0).setTextContent(String.valueOf(_carId));
 		fx.WriteXML(doc, "www/soapbox/Engine.svc/personas/" + Functions.personaId + "/carslots.xml");
 		fx.WriteTempCar(new String(Files.readAllBytes(Paths.get("www/basket/" + basketId + ".xml")), StandardCharsets.UTF_8));
-		fx.log("|| -> New car has been added to the carslots of persona " + Functions.personaId + ".");
-		fx.log("|| -> Car Index has been changed to match the new car's ID.");
+		Functions.log("|| -> New car has been added to the carslots of persona " + Functions.personaId + ".");
+		Functions.log("|| -> Car Index has been changed to match the new car's ID.");
 	}
 
 	private void randCatalog() {
@@ -236,7 +236,7 @@ public class Event {
 					+ LuckyDrawItem
 					+ "</Items><NumBoxAnimations>100</NumBoxAnimations></LuckyDrawInfo><OriginalRewards><Rep>0</Rep><Tokens>0</Tokens></OriginalRewards><RewardInfo>"
 					+ Rewards + "</RewardInfo></Accolades>";
-			fx.WriteText("www/soapbox/Engine.svc/THDate", LocalDate.now().toString());
+			fx.WriteText("www/soapbox/Engine.svc/serverSettings/THDate", LocalDate.now().toString());
 		}
 	}
 

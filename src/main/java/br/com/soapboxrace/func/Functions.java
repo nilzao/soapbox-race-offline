@@ -36,14 +36,20 @@ public class Functions {
 
 	public static String personaId = "100";
 	public static String answerData = null;
+	private static javax.swing.JTextArea logTextArea;
 
-	public static int[][] rankDrop = new int[][] { new int[] {}, new int[] { 1, 0, 3, 2, 0, -1, 1, 2, 3, 0 }, new int[] { 1, 0, 0, 2, 0, -1, 1, 2, 0, 0 },
-			new int[] { 1, 0, 0, 1, 0, -1, 1, 1, 0, 0 } };
+	public static void setLogTextArea(javax.swing.JTextArea logTextArea) {
+		Functions.logTextArea = logTextArea;
+	}
+
+	public static int[][] rankDrop = new int[][] { new int[] {}, new int[] { 1, 0, 3, 2, 0, -1, 1, 2, 3, 0 },
+			new int[] { 1, 0, 0, 2, 0, -1, 1, 2, 0, 0 }, new int[] { 1, 0, 0, 1, 0, -1, 1, 1, 0, 0 } };
 	public static int[] rewards = new int[] { 20000, 250, 1000, 500, 1000 };
 	public static double[] multipliers = new double[] { 0.5, 1.0, 1.45 };
 
 	public String ReadCarIndex() throws ParserConfigurationException, SAXException, IOException {
-		return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse("www/soapbox/Engine.svc/personas/" + personaId + "/carslots.xml")
+		return DocumentBuilderFactory.newInstance().newDocumentBuilder()
+				.parse("www/soapbox/Engine.svc/personas/" + personaId + "/carslots.xml")
 				.getElementsByTagName("DefaultOwnedCarIndex").item(0).getTextContent();
 	}
 
@@ -54,9 +60,9 @@ public class Functions {
 			if (literal) {
 				carIndex = carId;
 			} else {
-				carIndex = String.valueOf(CountInstances(
-						new String(Files.readAllBytes(Paths.get("www/soapbox/Engine.svc/personas/" + personaId + "/carslots.xml")), StandardCharsets.UTF_8),
-						"<OwnedCarTrans>", "<Id>" + carId + "</Id>") - 1);
+				carIndex = String.valueOf(CountInstances(new String(
+						Files.readAllBytes(Paths.get("www/soapbox/Engine.svc/personas/" + personaId + "/carslots.xml")),
+						StandardCharsets.UTF_8), "<OwnedCarTrans>", "<Id>" + carId + "</Id>") - 1);
 			}
 			DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = docBuilder.parse("www/soapbox/Engine.svc/personas/" + personaId + "/carslots.xml");
@@ -64,7 +70,8 @@ public class Functions {
 			doc.getElementsByTagName("DefaultOwnedCarIndex").item(0).setTextContent(carIndex);
 			log("|| -> Car Index has been set to " + carIndex);
 			Node OwnedCar = doc.getElementsByTagName("OwnedCarTrans").item(Integer.parseInt(carIndex));
-			DOMImplementationLS lsImpl = (DOMImplementationLS) OwnedCar.getOwnerDocument().getImplementation().getFeature("LS", "3.0");
+			DOMImplementationLS lsImpl = (DOMImplementationLS) OwnedCar.getOwnerDocument().getImplementation()
+					.getFeature("LS", "3.0");
 			LSSerializer serializer = lsImpl.createLSSerializer();
 			serializer.getDomConfig().setParameter("xml-declaration", false);
 			String StringOwnedCar = serializer.writeToString(OwnedCar);
@@ -82,12 +89,13 @@ public class Functions {
 
 	public void FixCarslots() {
 		try {
-			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse("www/soapbox/Engine.svc/personas/" + personaId + "/carslots.xml");
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+					.parse("www/soapbox/Engine.svc/personas/" + personaId + "/carslots.xml");
 
 			int _carId = 0;
-			int ids = CountInstances(
-					new String(Files.readAllBytes(Paths.get("www/soapbox/Engine.svc/personas/" + personaId + "/carslots.xml")), StandardCharsets.UTF_8), "<Id>",
-					"</CarsOwnedByPersona>") - 1;
+			int ids = CountInstances(new String(
+					Files.readAllBytes(Paths.get("www/soapbox/Engine.svc/personas/" + personaId + "/carslots.xml")),
+					StandardCharsets.UTF_8), "<Id>", "</CarsOwnedByPersona>") - 1;
 			for (int i = 0; i <= ids; i++) {
 				if (i % 2 != 0) {
 					_carId++;
@@ -122,23 +130,28 @@ public class Functions {
 			BufferedWriter bw;
 			try {
 				// defaultcar
-				bw = new BufferedWriter(new FileWriter(new File("www/soapbox/Engine.svc/personas/" + personaId + "/defaultcar.xml").getAbsoluteFile()));
+				bw = new BufferedWriter(
+						new FileWriter(new File("www/soapbox/Engine.svc/personas/" + personaId + "/defaultcar.xml")
+								.getAbsoluteFile()));
 				bw.write(carData);
 				bw.close();
 				log("  -> DefaultCar has been (re)written with new car data.");
 				// cars
 				String carsW = carData.replace("<OwnedCarTrans>",
 						"<OwnedCarTrans xmlns=\"http://schemas.datacontract.org/2004/07/Victory.DataLayer.Serialization\" xmlns:i=\"http://../.w3.org/2001/XMLSchema-instance\">");
-				bw = new BufferedWriter(new FileWriter(new File("www/soapbox/Engine.svc/personas/" + personaId + "/cars.xml").getAbsoluteFile()));
+				bw = new BufferedWriter(new FileWriter(
+						new File("www/soapbox/Engine.svc/personas/" + personaId + "/cars.xml").getAbsoluteFile()));
 				bw.write(carsW);
 				bw.close();
 				log("  -> Cars has been (re)written with new car data.");
 				// commerce
 				if (HttpSrv.modifiedTarget == "commerce") {
-					String commerceW = carData.replace("<OwnedCarTrans>", "<UpdatedCar>").replace("</OwnedCarTrans>", "</UpdatedCar>");
+					String commerceW = carData.replace("<OwnedCarTrans>", "<UpdatedCar>").replace("</OwnedCarTrans>",
+							"</UpdatedCar>");
 					Functions.answerData = "<CommerceSessionResultTrans xmlns=\"http://schemas.datacontract.org/2004/07/Victory.DataLayer.Serialization\" xmlns:i=\"http://../.w3.org/2001/XMLSchema-instance\"><InvalidBasket i:nil=\"true\"/><InventoryItems><InventoryItemTrans><EntitlementTag>SPOILER_STYLE01_LARGE</EntitlementTag><ExpirationDate i:nil=\"true\"/><Hash>-232471336</Hash><InventoryId>2898928898</InventoryId><ProductId>DO NOT USE ME</ProductId><RemainingUseCount>1</RemainingUseCount><ResellPrice>0.00000</ResellPrice><Status>ACTIVE</Status><StringHash>0xf224c4d8</StringHash><VirtualItemType>visualpart</VirtualItemType></InventoryItemTrans></InventoryItems><Status>Success</Status>"
-							+ commerceW + "<Wallets><WalletTrans><Balance>" + String.valueOf(Economy.amount) + "</Balance><Currency>"
-							+ (Economy.type == 0 ? "CASH" : "BOOST") + "</Currency></WalletTrans></Wallets></CommerceResultTrans>";
+							+ commerceW + "<Wallets><WalletTrans><Balance>" + String.valueOf(Economy.amount)
+							+ "</Balance><Currency>" + (Economy.type == 0 ? "CASH" : "BOOST")
+							+ "</Currency></WalletTrans></Wallets></CommerceResultTrans>";
 					log("  -> Commerce has been processed using new car data.");
 				}
 			} catch (IOException e) {
@@ -153,8 +166,10 @@ public class Functions {
 			DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document packet = docBuilder.parse(new InputSource(new StringReader(BadgesPacket)));
 			Document achievements = docBuilder.parse("www/soapbox/Engine.svc/achievements/achdef.xml");
-			Document doc = docBuilder.parse("www/soapbox/Engine.svc/DriverPersona/GetPersonaBaseFromList_" + personaId + ".xml");
-			Document doc2 = docBuilder.parse("www/soapbox/Engine.svc/DriverPersona/GetPersonaInfo_" + personaId + ".xml");
+			Document doc = docBuilder
+					.parse("www/soapbox/Engine.svc/DriverPersona/GetPersonaBaseFromList_" + personaId + ".xml");
+			Document doc2 = docBuilder
+					.parse("www/soapbox/Engine.svc/DriverPersona/GetPersonaInfo_" + personaId + ".xml");
 			log("|| -> 4 documents have been loaded into memory.");
 			int loopA = CountInstances(BadgesPacket, "<SlotId>", "</BadgeBundle>");
 			log("|| -> Amount of new badges: " + String.valueOf(loopA) + ". Starting loop to rewrite badge data.");
@@ -162,12 +177,17 @@ public class Functions {
 				int slotId = Integer.parseInt(packet.getElementsByTagName("SlotId").item(i - 1).getTextContent());
 				String badgeId = packet.getElementsByTagName("BadgeDefinitionId").item(i - 1).getTextContent();
 
-				int achId = CountInstances(new String(Files.readAllBytes(Paths.get("www/soapbox/Engine.svc/achievements/achdef.xml")), StandardCharsets.UTF_8),
+				int achId = CountInstances(
+						new String(Files.readAllBytes(Paths.get("www/soapbox/Engine.svc/achievements/achdef.xml")),
+								StandardCharsets.UTF_8),
 						"<AchievementRanks>", "<BadgeDefinitionId>" + badgeId + "</BadgeDefinitionId>") - 1;
 
-				String rankId = achievements.getElementsByTagName("AchievementRanks").item(achId).getLastChild().getChildNodes().item(1).getTextContent();
-				String isRare = achievements.getElementsByTagName("AchievementRanks").item(achId).getLastChild().getChildNodes().item(2).getTextContent();
-				String rarity = achievements.getElementsByTagName("AchievementRanks").item(achId).getLastChild().getChildNodes().item(5).getTextContent();
+				String rankId = achievements.getElementsByTagName("AchievementRanks").item(achId).getLastChild()
+						.getChildNodes().item(1).getTextContent();
+				String isRare = achievements.getElementsByTagName("AchievementRanks").item(achId).getLastChild()
+						.getChildNodes().item(2).getTextContent();
+				String rarity = achievements.getElementsByTagName("AchievementRanks").item(achId).getLastChild()
+						.getChildNodes().item(5).getTextContent();
 				log("  ||  New badge data ->  RankID: " + rankId + ", isRare: " + isRare + ", Rarity: " + rarity + ".");
 				doc.getElementsByTagName("AchievementRankId").item(slotId).setTextContent(rankId);
 				doc.getElementsByTagName("BadgeDefinitionId").item(slotId).setTextContent(badgeId);
@@ -191,7 +211,7 @@ public class Functions {
 
 	public void StartNewTH(boolean isCompleted) {
 		try {
-			this.log("|| -> Generating new TH.");
+			Functions.log("|| -> Generating new TH.");
 			DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = docBuilder.parse(new File("www/soapbox/Engine.svc/events/gettreasurehunteventsession.xml"));
 			Random random = new Random();
@@ -204,8 +224,9 @@ public class Functions {
 
 				WriteXML(doc, "www/soapbox/Engine.svc/events/gettreasurehunteventsession.xml");
 				log("|| -> You're on a roll! A new TH for today has been generated.");
-			} else if (!isCompleted && !doc.getElementsByTagName("IsStreakBroken").item(0).getTextContent().equals("true")) { // Lost
-																																// Streak
+			} else if (!isCompleted
+					&& !doc.getElementsByTagName("IsStreakBroken").item(0).getTextContent().equals("true")) { // Lost
+																												// Streak
 				doc.getElementsByTagName("Seed").item(0).setTextContent(String.valueOf(seed));
 				doc.getElementsByTagName("CoinsCollected").item(0).setTextContent("0");
 				doc.getElementsByTagName("IsStreakBroken").item(0).setTextContent("true");
@@ -225,8 +246,8 @@ public class Functions {
 
 			doc.getElementsByTagName("CoinsCollected").item(0).setTextContent(coins);
 			if (coins.equals("32767"))
-				doc.getElementsByTagName("Streak").item(0)
-						.setTextContent(String.valueOf(Integer.parseInt(doc.getElementsByTagName("Streak").item(0).getTextContent()) + 1));
+				doc.getElementsByTagName("Streak").item(0).setTextContent(String
+						.valueOf(Integer.parseInt(doc.getElementsByTagName("Streak").item(0).getTextContent()) + 1));
 
 			WriteXML(doc, "www/soapbox/Engine.svc/events/gettreasurehunteventsession.xml");
 		} catch (Exception e) {
@@ -236,17 +257,19 @@ public class Functions {
 
 	public int GetLevel() throws ParserConfigurationException, SAXException, IOException {
 		return Integer.parseInt(DocumentBuilderFactory.newInstance().newDocumentBuilder()
-				.parse("www/soapbox/Engine.svc/DriverPersona/GetPersonaBaseFromList_" + personaId + ".xml").getElementsByTagName("Level").item(0)
-				.getTextContent());
+				.parse("www/soapbox/Engine.svc/DriverPersona/GetPersonaBaseFromList_" + personaId + ".xml")
+				.getElementsByTagName("Level").item(0).getTextContent());
 	}
 
 	public int GetTHStreak() throws DOMException, SAXException, IOException, ParserConfigurationException {
-		return Integer.parseInt(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse("www/soapbox/Engine.svc/events/gettreasurehunteventsession.xml")
-				.getElementsByTagName("Streak").item(0).getTextContent());
+		return Integer.parseInt(DocumentBuilderFactory.newInstance().newDocumentBuilder()
+				.parse("www/soapbox/Engine.svc/events/gettreasurehunteventsession.xml").getElementsByTagName("Streak")
+				.item(0).getTextContent());
 	}
 
 	public String GetIsTHStreakBroken() throws DOMException, SAXException, IOException, ParserConfigurationException {
-		return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse("www/soapbox/Engine.svc/events/gettreasurehunteventsession.xml")
+		return DocumentBuilderFactory.newInstance().newDocumentBuilder()
+				.parse("www/soapbox/Engine.svc/events/gettreasurehunteventsession.xml")
 				.getElementsByTagName("IsStreakBroken").item(0).getTextContent();
 	}
 
@@ -287,7 +310,8 @@ public class Functions {
 		return intArray;
 	}
 
-	public void log(String text) {
+	public static void log(String text) {
+		Functions.logTextArea.append(text + "\n");
 		System.out.println(text);
 	}
 
